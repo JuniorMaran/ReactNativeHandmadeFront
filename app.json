@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "won-games",
-    "slug": "won-games",
+    "name": "react-native-handmade",
+    "slug": "react-native-handmade",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "wongames",
+    "scheme": "reactnativehandmade",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.jrmaran.reactnativehandmade"
     },
     "web": {
       "bundler": "metro",
