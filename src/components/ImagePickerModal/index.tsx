@@ -1,47 +1,59 @@
-
-import { useState } from 'react';
-import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { firebaseAddImage } from '@/src/services/firebaseService';
+import React from 'react';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
-const ImagePickerModal = () => {
-  const [modalVisible, setModalVisible] = useState(false);
+type Props = {
+  pickImageModal: boolean,
+  setPickImageModal: React.Dispatch<React.SetStateAction<boolean>>
+  setImageURI: React.Dispatch<React.SetStateAction<string>>
+}
+const ImagePickerModal = (props: Props) => {
 
-  const openCamera = () => {
-    setModalVisible(false);
-    launchCamera({ mediaType: 'photo' }, response => {
-      console.log('Camera response:', response);
-    });
+  const {pickImageModal, setPickImageModal, setImageURI} = props;
+
+  const selectImage = (imageOrigin: string) => {
+    if(imageOrigin === 'camera'){
+      launchCamera({ mediaType: 'photo' }, response => {
+        setImageURI(response?.assets?.[0]?.uri || '');
+        return response?.assets?.[0]?.uri  || '';
+      });
+    }
+    if(imageOrigin === 'gallery'){
+      launchImageLibrary({ mediaType: 'photo' }, response => {
+        setImageURI(response?.assets?.[0]?.uri || '');
+        console.log('Gallery response:', response?.assets?.[0]?.uri);
+        return response?.assets?.[0]?.uri  || '';
+      });
+    };
   };
 
-  const openGallery = () => {
-    setModalVisible(false);
-    launchImageLibrary({ mediaType: 'photo' }, response => {
-      console.log('Gallery response:', response);
-    });
+  const handleUpdateImage = async () => {
+    const image = await selectImage('gallery');
+    await firebaseAddImage(image);
   };
 
   return (
     <View style={styles.container}>
-      <Button title="Escolher Imagem" onPress={() => setModalVisible(true)} />
       <Modal
         transparent={true}
-        visible={modalVisible}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
+        visible={pickImageModal}
+        
+        onRequestClose={() => setPickImageModal(false)}
       >
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
-          onPressOut={() => setModalVisible(false)}
+          onPressOut={() => setPickImageModal(false)}
         >
           <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.option} onPress={openCamera}>
+            <TouchableOpacity style={styles.option} onPress={() => selectImage('camera')}>
               <Text style={styles.optionText}>Usar Câmera</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.option} onPress={openGallery}>
+            <TouchableOpacity style={styles.option} onPress={() => selectImage('gallery')}>
               <Text style={styles.optionText}>Selecionar da Galeria</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.option} onPress={() => setModalVisible(false)}>
+            <TouchableOpacity style={styles.option} onPress={() => setPickImageModal(false)}>
               <Text style={[styles.optionText, { color: 'red' }]}>Cancelar</Text>
             </TouchableOpacity>
           </View>
